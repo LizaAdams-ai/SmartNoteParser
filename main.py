@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 import click
 import os
-import re
+import json
 from pathlib import Path
+from parser import NoteParser
 
 @click.command()
 @click.option('--file', '-f', help='Note file to parse')
@@ -19,7 +20,32 @@ def parse_notes(file, format, output):
         return
     
     click.echo(f"Parsing {file}...")
-    # TODO: Implement parsing logic
+    
+    try:
+        parser = NoteParser()
+        result = parser.parse_file(file)
+        
+        # Convert set to list for JSON serialization
+        if 'tags' in result:
+            result['tags'] = list(result['tags'])
+        
+        # Display results
+        click.echo(f"\nFormat: {result['format']}")
+        if result.get('headers'):
+            click.echo(f"Headers found: {len(result['headers'])}")
+        if result.get('tags'):
+            click.echo(f"Tags: {', '.join(result['tags'])}")
+        if result.get('todos'):
+            click.echo(f"TODOs: {len(result['todos'])}")
+        
+        # Save to output file if specified
+        if output:
+            with open(output, 'w') as f:
+                json.dump(result, f, indent=2)
+            click.echo(f"Results saved to {output}")
+            
+    except Exception as e:
+        click.echo(f"Error parsing file: {e}")
     
 if __name__ == '__main__':
     parse_notes()
