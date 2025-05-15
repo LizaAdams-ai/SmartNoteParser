@@ -9,7 +9,8 @@ from parser import NoteParser
 @click.option('--file', '-f', help='Note file to parse')
 @click.option('--format', '-t', default='auto', help='Input format (markdown, txt, auto)')
 @click.option('--output', '-o', help='Output file path')
-def parse_notes(file, format, output):
+@click.option('--summary', '-s', is_flag=True, help='Generate summary')
+def parse_notes(file, format, output, summary):
     """SmartNoteParser - Extract key information from notes"""
     if not file:
         click.echo("Please specify a file to parse using --file")
@@ -25,9 +26,11 @@ def parse_notes(file, format, output):
         parser = NoteParser()
         result = parser.parse_file(file)
         
-        # Convert set to list for JSON serialization
+        # Convert sets to lists for JSON serialization
         if 'tags' in result:
             result['tags'] = list(result['tags'])
+        if 'keywords' in result:
+            result['keywords'] = list(result['keywords'])
         
         # Display results
         click.echo(f"\nFormat: {result['format']}")
@@ -35,8 +38,16 @@ def parse_notes(file, format, output):
             click.echo(f"Headers found: {len(result['headers'])}")
         if result.get('tags'):
             click.echo(f"Tags: {', '.join(result['tags'])}")
+        if result.get('keywords'):
+            click.echo(f"Keywords: {', '.join(result['keywords'])}")
         if result.get('todos'):
             click.echo(f"TODOs: {len(result['todos'])}")
+        
+        # Generate summary if requested
+        if summary:
+            click.echo("\n--- SUMMARY ---")
+            summary_text = parser.generate_summary(result)
+            click.echo(summary_text)
         
         # Save to output file if specified
         if output:
