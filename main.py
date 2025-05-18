@@ -4,6 +4,7 @@ import os
 import json
 from pathlib import Path
 from parser import NoteParser
+from exporter import DataExporter
 
 @click.command()
 @click.option('--file', '-f', help='Note file to parse')
@@ -51,9 +52,15 @@ def parse_notes(file, format, output, summary):
         
         # Save to output file if specified
         if output:
-            with open(output, 'w') as f:
-                json.dump(result, f, indent=2)
-            click.echo(f"Results saved to {output}")
+            exporter = DataExporter()
+            output_path = Path(output)
+            
+            if output_path.suffix.lower() == '.csv':
+                exporter.export_to_csv(result, output)
+                click.echo(f"Results exported to CSV: {output}")
+            else:
+                exporter.export_to_json(result, output)
+                click.echo(f"Results saved as JSON: {output}")
             
     except Exception as e:
         click.echo(f"Error parsing file: {e}")
