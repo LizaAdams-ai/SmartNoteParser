@@ -46,24 +46,43 @@ def parse_notes(file, format, output, summary):
         
         # Generate summary if requested
         if summary:
-            click.echo("\n--- SUMMARY ---")
-            summary_text = parser.generate_summary(result)
-            click.echo(summary_text)
+            try:
+                click.echo("\n--- SUMMARY ---")
+                summary_text = parser.generate_summary(result)
+                click.echo(summary_text)
+            except Exception as e:
+                click.echo(f"Warning: Could not generate summary: {e}")
         
         # Save to output file if specified
         if output:
-            exporter = DataExporter()
-            output_path = Path(output)
+            try:
+                exporter = DataExporter()
+                output_path = Path(output)
+                
+                # Create output directory if it doesn't exist
+                output_path.parent.mkdir(parents=True, exist_ok=True)
+                
+                if output_path.suffix.lower() == '.csv':
+                    exporter.export_to_csv(result, output)
+                    click.echo(f"Results exported to CSV: {output}")
+                else:
+                    exporter.export_to_json(result, output)
+                    click.echo(f"Results saved as JSON: {output}")
+            except PermissionError:
+                click.echo(f"Error: Permission denied writing to {output}")
+            except Exception as e:
+                click.echo(f"Error saving output file: {e}")
             
-            if output_path.suffix.lower() == '.csv':
-                exporter.export_to_csv(result, output)
-                click.echo(f"Results exported to CSV: {output}")
-            else:
-                exporter.export_to_json(result, output)
-                click.echo(f"Results saved as JSON: {output}")
-            
+    except FileNotFoundError as e:
+        click.echo(f"Error: {e}")
+    except PermissionError as e:
+        click.echo(f"Error: {e}")
+    except ValueError as e:
+        click.echo(f"Error: {e}")
     except Exception as e:
-        click.echo(f"Error parsing file: {e}")
+        click.echo(f"Unexpected error: {e}")
+        import traceback
+        traceback.print_exc()
     
 if __name__ == '__main__':
     parse_notes()

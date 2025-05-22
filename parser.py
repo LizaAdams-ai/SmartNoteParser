@@ -17,18 +17,39 @@ class NoteParser:
         if not path.exists():
             raise FileNotFoundError(f"File not found: {file_path}")
         
-        with open(path, 'r', encoding='utf-8') as f:
-            content = f.read()
+        if not path.is_file():
+            raise ValueError(f"Path is not a file: {file_path}")
+        
+        try:
+            with open(path, 'r', encoding='utf-8') as f:
+                content = f.read()
+        except UnicodeDecodeError:
+            # Try with different encoding
+            try:
+                with open(path, 'r', encoding='latin-1') as f:
+                    content = f.read()
+            except Exception as e:
+                raise ValueError(f"Unable to read file {file_path}: {e}")
+        except PermissionError:
+            raise PermissionError(f"Permission denied reading file: {file_path}")
+        except Exception as e:
+            raise IOError(f"Error reading file {file_path}: {e}")
+        
+        if not content.strip():
+            raise ValueError(f"File is empty: {file_path}")
         
         self.content = content
         
         # Detect file type
         file_type = self._detect_format(path.suffix)
         
-        if file_type == 'markdown':
-            return self._parse_markdown(content)
-        else:
-            return self._parse_text(content)
+        try:
+            if file_type == 'markdown':
+                return self._parse_markdown(content)
+            else:
+                return self._parse_text(content)
+        except Exception as e:
+            raise RuntimeError(f"Error parsing content: {e}")
     
     def _detect_format(self, extension: str) -> str:
         """Detect note format based on extension"""
