@@ -2,3 +2,5 @@ click==8.1.7
 regex==2023.12.25
 colorama==0.4.6
 pandas==2.0.3
+PyYAML==6.0.1
+watchdog==3.0.0

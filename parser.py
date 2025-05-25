@@ -1,14 +1,18 @@
 import re
-from typing import Dict, List, Set
+from typing import Dict, List, Set, Optional
 from pathlib import Path
 from collections import Counter
+from config import Config
+from analyzer import TextAnalyzer
 
 class NoteParser:
-    def __init__(self):
+    def __init__(self, config: Optional[Config] = None):
         self.tags = set()
         self.todos = []
         self.headers = []
         self.content = ""
+        self.config = config or Config()
+        self.analyzer = TextAnalyzer()
     
     def parse_file(self, file_path: str) -> Dict:
         """Parse a note file and extract structured information"""
@@ -141,3 +145,17 @@ class NoteParser:
             lines.append(f"Tasks: {completed}/{total} completed")
         
         return "\n".join(lines)
+    
+    def analyze_content(self, parsed_data: Dict) -> Dict:
+        """Perform advanced text analysis on parsed content"""
+        content = parsed_data.get('content', '')
+        if not content:
+            return {}
+        
+        analysis = self.analyzer.generate_text_insights(content)
+        
+        # Add analysis results to parsed data
+        result = parsed_data.copy()
+        result['analysis'] = analysis
+        
+        return result
