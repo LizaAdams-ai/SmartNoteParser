@@ -1,0 +1,34 @@
+# SmartNoteParser Configuration Example
+# Copy this to .smartnoteparser.yaml and customize
+
+parsing:
+  ignore_case: true
+  max_tag_length: 50
+  custom_tag_patterns: []
+  custom_todo_patterns:
+    - "TODO:"
+    - "FIXME:" 
+    - "NOTE:"
+    - "HACK:"
+  extract_urls: true
+  extract_emails: false
+
+export:
+  default_format: "json"
+  csv_delimiter: ","
+  include_content: false  # Include full content in exports
+  max_content_preview: 100  # Max chars for content preview
+
+summary:
+  max_tags_shown: 10
+  max_keywords_shown: 8
+  include_word_count: true
+  include_structure: true
+
+# Analysis settings
+analysis:
+  word_frequency_min_length: 3
+  word_frequency_top_n: 20
+  key_phrases_min_words: 2
+  key_phrases_max_words: 4
+  include_stop_words: false
