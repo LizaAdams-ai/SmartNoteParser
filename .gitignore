@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+__pycache__/
+.claude
+npm-debug.log*
+*.pyc
+
+# IDE files
+.vscode/
+CLAUDE.md
+.idea/
+*.swp
+*.swo
+
+# Python
+*.py[cod]
+*$py.class
+.DS_Store
+dist/
+build/
+*.egg-info/
+
+# OS generated files
+Thumbs.db
+.Python
+
+# Local environment
+.env
+.env.local
+venv/
+env/
+
+# Logs
+*.log
+pip-log.txt
